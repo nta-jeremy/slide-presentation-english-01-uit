@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Traveling and Its Benefits</title>
+  <style>
+    :root {
+      --bg: #071521;
+      --paper: #fff8ec;
+      --ink: #163246;
+      --muted: #60798a;
+      --gold: #f3b544;
+      --coral: #eb6a4b;
+      --teal: #2aa6a1;
+      --sky: #d8f1ff;
+      --shadow: 0 28px 80px rgba(1, 17, 28, .42);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      overflow: hidden;
+      background: radial-gradient(circle at top left, #133c54, var(--bg) 55%);
+      color: var(--ink);
+      font-family: Avenir Next, Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    .deck {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    @media (min-width: 900px) {
+      .deck {
+        width: min(100vw, calc(100vh * 16 / 9));
+        height: min(100vh, calc(100vw * 9 / 16));
+        margin: auto;
+        position: absolute;
+        inset: 0;
+        border-radius: 18px;
+        box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 40px 120px rgba(0,0,0,.5);
+      }
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      padding: clamp(28px, 4.6vw, 64px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateX(16px) scale(.99);
+      transition: opacity .35s ease, transform .35s ease, visibility .35s ease;
+      background:
+        radial-gradient(circle at 12% 8%, rgba(243,181,68,.18), transparent 28%),
+        linear-gradient(135deg, #fef7eb 0%, #eaf6f5 56%, #dceeff 100%);
+      overflow: hidden;
+    }
+
+    .slide.active {
+      opacity: 1;
+      visibility: visible;
+      transform: translateX(0) scale(1);
+      z-index: 2;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(22,50,70,.12);
+      border-radius: 30px;
+      pointer-events: none;
+    }
+
+    .content {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      height: 100%;
+      display: grid;
+      gap: clamp(18px, 2.5vw, 32px);
+      align-items: center;
+    }
+
+    .split { grid-template-columns: 1.02fr .98fr; }
+    .split.reverse { grid-template-columns: .92fr 1.08fr; }
+    .center { text-align: center; place-items: center; }
+    .stack { display: grid; gap: 18px; align-content: center; }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      max-width: 950px;
+      font-size: clamp(48px, 7.5vw, 104px);
+      line-height: .9;
+      letter-spacing: -4px;
+      color: #12334a;
+    }
+
+    h2 {
+      font-size: clamp(36px, 5vw, 70px);
+      line-height: .95;
+      letter-spacing: -2.4px;
+      color: #12334a;
+    }
+
+    h3 {
+      font-size: clamp(18px, 2vw, 26px);
+      color: var(--coral);
+      text-transform: uppercase;
+      letter-spacing: 2.4px;
+      font-weight: 800;
+    }
+
+    p, li {
+      font-size: clamp(18px, 2vw, 28px);
+      line-height: 1.35;
+      color: #284b60;
+    }
+
+    ul {
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    li {
+      position: relative;
+      padding-left: 34px;
+    }
+
+    li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: .48em;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--gold), var(--coral));
+      box-shadow: 0 0 0 6px rgba(243,181,68,.18);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.68);
+      border: 1px solid rgba(22,50,70,.12);
+      color: var(--teal);
+      font-weight: 800;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+      font-size: 13px;
+    }
+
+    .lead {
+      max-width: 880px;
+      font-size: clamp(22px, 2.5vw, 34px);
+      color: #365e70;
+    }
+
+    .image-card {
+      position: relative;
+      height: 100%;
+      min-height: 390px;
+      overflow: hidden;
+      border-radius: var(--radius);
+      background: #fff;
+      box-shadow: var(--shadow);
+      border: 8px solid rgba(255,255,255,.68);
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .image-card.contain img { object-fit: contain; background: #fff9f0; }
+    .image-card.soft { box-shadow: 0 20px 60px rgba(31, 72, 93, .22); }
+
+    .caption {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(7, 21, 33, .74);
+      color: #fff;
+      font-size: 16px;
+      line-height: 1.35;
+      backdrop-filter: blur(12px);
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .card {
+      min-height: 142px;
+      padding: 20px;
+      border-radius: 22px;
+      background: rgba(255,255,255,.62);
+      border: 1px solid rgba(22,50,70,.12);
+      box-shadow: 0 16px 42px rgba(31,72,93,.12);
+    }
+
+    .card strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #15394e;
+      font-size: clamp(18px, 2vw, 24px);
+    }
+
+    .card span {
+      color: var(--muted);
+      font-size: clamp(14px, 1.45vw, 18px);
+      line-height: 1.35;
+    }
+
+    .quote {
+      padding: clamp(24px, 4vw, 46px);
+      border-radius: var(--radius);
+      background: rgba(255,255,255,.62);
+      border: 1px solid rgba(22,50,70,.12);
+      box-shadow: 0 18px 50px rgba(31,72,93,.13);
+      font-size: clamp(26px, 3.2vw, 46px);
+      line-height: 1.14;
+      color: #15394e;
+    }
+
+    .number-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .mini {
+      padding: 18px 14px;
+      text-align: center;
+      border-radius: 20px;
+      background: rgba(255,255,255,.66);
+      border: 1px solid rgba(22,50,70,.1);
+    }
+
+    .mini b {
+      display: block;
+      color: var(--coral);
+      font-size: clamp(26px, 3vw, 42px);
+      line-height: 1;
+    }
+
+    .mini span {
+      display: block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: clamp(13px, 1.35vw, 17px);
+      line-height: 1.25;
+    }
+
+    .full-bleed {
+      padding: 0;
+      background: #06131f;
+    }
+
+    .full-bleed::before { display: none; }
+    .full-bleed img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: .78;
+      filter: saturate(1.08) contrast(1.02);
+    }
+
+    .shade {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(90deg, rgba(6,19,31,.92) 0%, rgba(6,19,31,.68) 43%, rgba(6,19,31,.12) 100%);
+    }
+
+    .hero-copy {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin-left: clamp(34px, 6vw, 82px);
+      color: #fff;
+    }
+
+    .hero-copy h1, .hero-copy h2 { color: #fff; }
+    .hero-copy p { color: rgba(255,255,255,.84); }
+    .hero-copy .eyebrow { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.18); color: #ffd77c; }
+
+    .closing-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .footer-note {
+      position: absolute;
+      left: 38px;
+      bottom: 28px;
+      z-index: 5;
+      color: rgba(22,50,70,.56);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
+
+    .progress {
+      position: fixed;
+      left: 0;
+      top: 0;
+      height: 5px;
+      width: 0;
+      z-index: 10;
+      background: linear-gradient(90deg, var(--gold), var(--coral), var(--teal));
+      transition: width .25s ease;
+    }
+
+    .nav {
+      position: fixed;
+      right: 26px;
+      bottom: 22px;
+      z-index: 12;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      border-radius: 999px;
+      background: rgba(7,21,33,.72);
+      backdrop-filter: blur(14px);
+      color: #fff;
+      box-shadow: 0 16px 50px rgba(0,0,0,.28);
+    }
+
+    button {
+      width: 38px;
+      height: 38px;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: rgba(255,255,255,.14);
+      cursor: pointer;
+      font-size: 18px;
+    }
+
+    button:hover { background: rgba(255,255,255,.24); }
+    .counter { min-width: 58px; text-align: center; font-weight: 800; font-size: 14px; }
+
+    @media (max-width: 760px) {
+      body { overflow: auto; }
+      .deck { height: auto; min-height: 100vh; overflow: visible; }
+      .slide { position: relative; min-height: 100vh; display: none; padding: 26px 18px 82px; }
+      .slide.active { display: grid; }
+      .split, .split.reverse, .closing-grid { grid-template-columns: 1fr; }
+      .cards, .number-row { grid-template-columns: 1fr; }
+      .image-card { min-height: 310px; }
+      .hero-copy { margin: 0 22px; }
+      h1 { letter-spacing: -2px; }
+      h2 { letter-spacing: -1.5px; }
+    }
+
+    @media print {
+      body { overflow: visible; background: #fff; }
+      .deck { position: static; width: 100%; height: auto; overflow: visible; box-shadow: none; }
+      .slide { position: relative; opacity: 1; visibility: visible; transform: none; page-break-after: always; width: 100vw; height: 56.25vw; max-height: 100vh; }
+      .nav, .progress { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="progress" id="progress"></div>
+  <main class="deck" id="deck">
+    <section class="slide full-bleed active">
+      <img src="images/img01.png" alt="Illustrated travel map showing leisure, cultural exploration, and adventure">
+      <div class="shade"></div>
+      <div class="hero-copy stack">
+        <div class="eyebrow">English Presentation</div>
+        <h1>Traveling and Its Benefits</h1>
+        <p class="lead">Travel is more than moving from one place to another. It is a way to explore, learn, grow, and understand the world more deeply.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split">
+        <div class="stack">
+          <div class="eyebrow">Introduction</div>
+          <h2>Why do people travel?</h2>
+          <p>People travel for many reasons, but most journeys begin with curiosity and the desire for a new experience.</p>
+          <div class="cards">
+            <div class="card"><strong>Leisure</strong><span>To rest, recharge, and enjoy beautiful places.</span></div>
+            <div class="card"><strong>Culture</strong><span>To discover history, traditions, food, and local stories.</span></div>
+            <div class="card"><strong>Adventure</strong><span>To challenge ourselves and step outside our comfort zone.</span></div>
+          </div>
+        </div>
+        <figure class="image-card soft"><img src="images/img02.png" alt="Colorful world map connecting cities and continents"><figcaption class="caption">A journey connects places, but it also connects people and ideas.</figcaption></figure>
+      </div>
+      <div class="footer-note">Use this slide to introduce the topic and purposes of travel.</div>
+    </section>
+
+    <section class="slide">
+      <div class="content split reverse">
+        <figure class="image-card"><img src="images/img03.png" alt="Traveler viewing a wall of different cultures around the world"><figcaption class="caption">Different paths, one human journey.</figcaption></figure>
+        <div class="stack">
+          <div class="eyebrow">Benefit 1</div>
+          <h2>Travel opens the door to new cultures.</h2>
+          <ul>
+            <li>We see how people live, celebrate, and express their identity.</li>
+            <li>We learn to respect differences instead of judging them quickly.</li>
+            <li>Every culture becomes a story we can carry home.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split">
+        <div class="stack">
+          <div class="eyebrow">Benefit 2</div>
+          <h2>Travel helps us learn languages.</h2>
+          <p>Even a simple greeting can build connection. When we travel, language becomes real, practical, and memorable.</p>
+          <div class="quote">“One world, many voices, one connection.”</div>
+        </div>
+        <figure class="image-card contain"><img src="images/img04.png" alt="A traveler using a phone translator with greetings in many languages"></figure>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split reverse">
+        <figure class="image-card"><img src="images/img05.png" alt="Traveler jumping across floating islands labeled confidence, adaptability, creativity, and empathy"></figure>
+        <div class="stack">
+          <div class="eyebrow">Benefit 3</div>
+          <h2>Travel builds personal growth.</h2>
+          <div class="number-row">
+            <div class="mini"><b>1</b><span>Confidence to try new things</span></div>
+            <div class="mini"><b>2</b><span>Adaptability in unfamiliar places</span></div>
+            <div class="mini"><b>3</b><span>Creativity through new perspectives</span></div>
+            <div class="mini"><b>4</b><span>Empathy for different lives</span></div>
+          </div>
+          <p>Every trip teaches us to solve problems, stay flexible, and trust ourselves.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split">
+        <div class="stack">
+          <div class="eyebrow">Reflection</div>
+          <h2>Travel gives our mind space to breathe.</h2>
+          <ul>
+            <li>Nature helps us slow down and think clearly.</li>
+            <li>Quiet moments turn experiences into lessons.</li>
+            <li>We return home with a calmer and more open mind.</li>
+          </ul>
+        </div>
+        <figure class="image-card"><img src="images/img06.png" alt="Travel journal illustration of Norwegian fjords and peaceful reflection"><figcaption class="caption">A peaceful destination can become a classroom for the mind.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split reverse">
+        <figure class="image-card"><img src="images/img07.png" alt="Compass showing local exploration, regional travel, and global adventure"></figure>
+        <div class="stack">
+          <div class="eyebrow">Important Idea</div>
+          <h2>Travel does not always mean going far away.</h2>
+          <p>We can begin with local exploration: a museum, a market, a nearby city, or a place we have never noticed before.</p>
+          <div class="cards">
+            <div class="card"><strong>Local</strong><span>Explore your own city with fresh eyes.</span></div>
+            <div class="card"><strong>Regional</strong><span>Understand nearby communities and landscapes.</span></div>
+            <div class="card"><strong>Global</strong><span>Experience broader cultures and histories.</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split">
+        <div class="stack">
+          <div class="eyebrow">Personal Experience</div>
+          <h2>My dream destination is Tokyo, Japan.</h2>
+          <p>I want to visit Tokyo because it combines tradition, technology, food, and everyday discipline. At Shibuya Crossing, thousands of people move in different directions, yet the city still feels organized and alive.</p>
+          <ul>
+            <li>Lesson: be present and observe small details.</li>
+            <li>Lesson: food, kindness, and curiosity can connect strangers.</li>
+            <li>Lesson: we are more alike than different.</li>
+          </ul>
+        </div>
+        <figure class="image-card"><img src="images/img08.png" alt="Travel journal page about Shibuya Crossing in Tokyo"><figcaption class="caption">A travel story turns a destination into a personal lesson.</figcaption></figure>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="content split reverse">
+        <figure class="image-card"><img src="images/img10.png" alt="Friends sharing travel memories around a glowing map"><figcaption class="caption">Shared moments become stronger memories.</figcaption></figure>
+        <div class="stack">
+          <div class="eyebrow">Benefit 4</div>
+          <h2>Travel strengthens relationships.</h2>
+          <p>Trips create stories that people remember together: getting lost, trying new food, watching sunsets, or solving small problems as a team.</p>
+          <div class="quote">The best souvenirs are not things. They are shared memories.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide full-bleed">
+      <img src="images/img09.png" alt="Illustration with the message broaden your perspective">
+      <div class="shade"></div>
+      <div class="hero-copy stack">
+        <div class="eyebrow">Conclusion</div>
+        <h2>Travel broadens our perspective.</h2>
+        <p class="lead">It teaches culture, language, confidence, empathy, and connection. Whether we travel across the world or explore locally, every journey can help us understand life from a wider point of view.</p>
+        <p class="lead"><strong>Final message:</strong> The world is open. Go find your story.</p>
+      </div>
+    </section>
+  </main>
+
+  <nav class="nav" aria-label="Slide controls">
+    <button type="button" id="prev" aria-label="Previous slide">‹</button>
+    <span class="counter"><span id="current">1</span> / <span id="total">10</span></span>
+    <button type="button" id="next" aria-label="Next slide">›</button>
+  </nav>
+
+  <script>
+    const slides = [...document.querySelectorAll('.slide')];
+    const progress = document.getElementById('progress');
+    const currentLabel = document.getElementById('current');
+    const totalLabel = document.getElementById('total');
+    let current = 0;
+
+    totalLabel.textContent = slides.length;
+
+    function showSlide(index) {
+      current = Math.max(0, Math.min(index, slides.length - 1));
+      slides.forEach((slide, i) => slide.classList.toggle('active', i === current));
+      currentLabel.textContent = current + 1;
+      progress.style.width = `${((current + 1) / slides.length) * 100}%`;
+    }
+
+    function nextSlide() { showSlide(current + 1); }
+    function prevSlide() { showSlide(current - 1); }
+
+    document.getElementById('next').addEventListener('click', nextSlide);
+    document.getElementById('prev').addEventListener('click', prevSlide);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'ArrowRight' || event.key === ' ') {
+        event.preventDefault();
+        nextSlide();
+      }
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        prevSlide();
+      }
+    });
+    document.getElementById('deck').addEventListener('click', event => {
+      if (!event.target.closest('button')) nextSlide();
+    });
+
+    showSlide(0);
+  </script>
+</body>
+</html>
