@@ -6,13 +6,9 @@
 
 - https://slide-presentation-english-01-uit-group-02.vercel.app
 
-## Latest Deployment
+## Verification
 
-- Deployment URL: https://slide-presentation-english-01-63v4qqa62-tunganh252s-projects.vercel.app
-- Inspect URL: https://vercel.com/tunganh252s-projects/slide-presentation-english-01-uit/AxrDNJwqTv7Ugr4LvC9UrT6jtYz3
-- Deployment ID: `dpl_AxrDNJwqTv7Ugr4LvC9UrT6jtYz3`
-- Status: `READY`
-- Verified: `HTTP 200` on 2026-05-27
+- Production alias verified: `HTTP 200` on 2026-05-27
 
 ## Deploy Command
 
