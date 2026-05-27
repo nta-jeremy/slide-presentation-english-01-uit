@@ -1,5 +1,8 @@
 {
   "framework": null,
   "outputDirectory": ".",
-  "cleanUrls": true
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/", "destination": "/traveling-and-its-benefits.html" }
+  ]
 }
