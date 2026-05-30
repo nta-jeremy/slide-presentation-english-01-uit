@@ -503,6 +503,9 @@
       .hero-copy { margin: 0 22px; }
       h1 { letter-spacing: -2px; }
       h2 { letter-spacing: -1.5px; }
+      .nav { right: 50%; transform: translateX(50%); bottom: 16px; padding: 10px; gap: 14px; }
+      button { width: 48px; height: 48px; font-size: 22px; }
+      .counter { font-size: 16px; min-width: 64px; }
     }
 
     @media print {
@@ -744,6 +747,37 @@
         prevSlide();
       }
     });
+
+    /* Touch support: swipe + tap zones */
+    let touchStartX = 0, touchStartY = 0, touchStartTime = 0;
+    const deck = document.getElementById('deck');
+
+    deck.addEventListener('touchstart', function(e) {
+      touchStartX = e.changedTouches[0].clientX;
+      touchStartY = e.changedTouches[0].clientY;
+      touchStartTime = Date.now();
+    }, { passive: true });
+
+    deck.addEventListener('touchend', function(e) {
+      const dx = e.changedTouches[0].clientX - touchStartX;
+      const dy = e.changedTouches[0].clientY - touchStartY;
+      const elapsed = Date.now() - touchStartTime;
+
+      /* Swipe: horizontal > 50px, dominant axis, < 400ms */
+      if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) && elapsed < 400) {
+        dx < 0 ? nextSlide() : prevSlide();
+        return;
+      }
+
+      /* Tap: barely moved, short press → tap-zone navigation */
+      if (Math.abs(dx) < 12 && Math.abs(dy) < 12 && elapsed < 250) {
+        const x = e.changedTouches[0].clientX;
+        const w = window.innerWidth;
+        if (x < w * 0.35) prevSlide();
+        else if (x > w * 0.65) nextSlide();
+      }
+    });
+
     showSlide(0);
   </script>
 </body>
